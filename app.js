@@ -22,6 +22,7 @@ const api = process.env.API_URL;
 app.use(bodyParser.json());
 app.use(morgan("tiny"));
 app.use(authJwt());
+app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 app.use(errorHandler);
 
 //===============================  routers ============================
