@@ -7,8 +7,8 @@ const orderItemSchema = mongoose.Schema({
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Products",
+    ref: "Product",
   },
 });
 
-exports.OrderItem = mongoose.model("Order", orderItemSchema);
+exports.OrderItem = mongoose.model("OrderItem", orderItemSchema);
