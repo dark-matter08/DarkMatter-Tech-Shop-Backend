@@ -1,6 +1,5 @@
-const functions = require("firebase-functions");
-
 require("dotenv/config");
+const functions = require("firebase-functions");
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
@@ -19,7 +18,7 @@ const errorHandler = require("./helpers/error-handler");
 app.use(cors());
 app.options("*", cors());
 
-const api = process.env.API_URL;
+const api = functions.config().env_var.api_url;
 
 //  ============================== Middleware ==========================
 app.use(bodyParser.json());
@@ -35,7 +34,7 @@ app.use(`${api}/users`, usersRouter);
 app.use(`${api}/orders`, ordersRouter);
 
 mongoose
-  .connect(process.env.CONNECTION_STRING)
+  .connect(functions.config().env_var.connection_string)
   .then(() => {
     console.log("Database connection is ready...");
   })
@@ -43,8 +42,8 @@ mongoose
     console.log(err);
   });
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
+// app.listen(3000, () => {
+//   console.log("Server is running on http://localhost:8080");
+// });
 
 exports.api = functions.https.onRequest(app);
