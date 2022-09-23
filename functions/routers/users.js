@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const { User } = require("../models/user");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const functions = require("firebase-functions");
 
 router.get("/", async (req, res) => {
   const usersList = await User.find().select("-passwordhash");
@@ -51,7 +52,7 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
-  const secret = process.env.JWT_SECRET;
+  const secret = functions.config().env_var.jwt_secret;
 
   if (!user) {
     return res.status(400).send("No user with this email was found");
