@@ -1,4 +1,5 @@
 const Busboy = require("busboy");
+const functions = require("firebase-functions");
 
 // ===== firebase imports ======
 const { initializeApp, cert } = require("firebase-admin/app");
@@ -10,7 +11,7 @@ const FILE_TYPE_MAP = {
   "image/jpg": "jpg",
 };
 
-var serviceAccount = require("../dmtechsop-firebase-adminsdk-c64aq-b4090c4639.json");
+var serviceAccount = require("./service_account.json");
 
 const bucket_name = "dmtechsop";
 

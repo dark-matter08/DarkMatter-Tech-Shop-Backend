@@ -5,21 +5,6 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const parseMultimediaForm = require("../helpers/parse-multimedia-form");
 
-// ==================================================================
-
-router.post("/file", async (req, res) => {
-  result = await parseMultimediaForm(req, "testing")
-    .then((res) => {
-      console.log(res);
-      return res;
-    })
-    .catch((e) => {
-      console.log(e);
-      return e;
-    });
-  res.send(result);
-});
-
 router.get(`/`, async (req, res) => {
   let filter = {};
 

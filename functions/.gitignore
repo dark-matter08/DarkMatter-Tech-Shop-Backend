@@ -1,2 +1,3 @@
 node_modules/
 .runtimeconfig.json
+helpers/service_account.json

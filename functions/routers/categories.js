@@ -1,5 +1,4 @@
 const express = require("express");
-const { restart } = require("nodemon");
 const router = express.Router();
 const { Category } = require("../models/category");
 const mongoose = require("mongoose");
