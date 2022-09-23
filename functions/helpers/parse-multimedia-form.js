@@ -1,7 +1,4 @@
 const Busboy = require("busboy");
-const path = require("path");
-const os = require("os");
-const fs = require("fs");
 
 // ===== firebase imports ======
 const { initializeApp, cert } = require("firebase-admin/app");
@@ -23,7 +20,7 @@ const app = initializeApp({
 });
 
 const fire_storage = getStorage(app);
-const bucket = fire_storage.bucket();
+const bucket = fire_storage.bucket(bucket_name);
 
 async function parseMultimediaForm(req, folder) {
   const busboy = Busboy({ headers: req.headers });
@@ -35,22 +32,31 @@ async function parseMultimediaForm(req, folder) {
 
   // =================================== On File ===========================================
 
-  busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+  busboy.on("file", async (fieldname, file, filename, encoding, mimetype) => {
     const fileName = fieldname.replace(" ", "-");
     const uniqueSuffix = Date.now();
     const extention = FILE_TYPE_MAP[filename.mimeType];
     const new_fieldname = `${fileName}-${uniqueSuffix}.${extention}`;
-
-    const filepath = path.join(os.tmpdir(), new_fieldname);
-    console.log(`Saving '${fieldname}' to ${filepath}`);
-    file.pipe(fs.createWriteStream(filepath));
+    const new_firebase_file = bucket.file(`${folder}/${new_fieldname}`);
 
     uploads.push({
-      filepath,
+      file,
       new_fieldname,
+      new_firebase_file,
     });
+
     signed_urls.push(
       `https://firebasestorage.googleapis.com/v0/b/${bucket_name}/o/${folder}%2F${new_fieldname}?alt=media`
+    );
+
+    file.pipe(
+      new_firebase_file.createWriteStream({
+        resumable: false,
+        validation: false,
+        metadata: {
+          contentType: filename.mimeType,
+        },
+      })
     );
   });
 
@@ -61,24 +67,8 @@ async function parseMultimediaForm(req, folder) {
   });
 
   // =================================== On finish ===========================================
-
   busboy.on("finish", async () => {
-    let promises = [];
-    uploads.forEach(async (item) => {
-      promises.push(
-        bucket.upload(item.filepath, {
-          destination: `${folder}/${item.new_fieldname}`,
-          resumable: false,
-        })
-      );
-    });
-    try {
-      await Promises.all(resolve);
-      result["error"] = false;
-    } catch (err) {
-      result["error"] = true;
-      result["message"] = err;
-    }
+    console.log("Finishing bussboy");
   });
 
   // =================================== On Close ===========================================
@@ -89,6 +79,8 @@ async function parseMultimediaForm(req, folder) {
 
   req.pipe(busboy);
   busboy.end(req.rawBody);
+
+  console.log(uploads);
 
   if (result.error) {
     return result;

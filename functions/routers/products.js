@@ -1,49 +1,23 @@
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
 const express = require("express");
-const multer = require("multer");
 const router = express.Router();
 const mongoose = require("mongoose");
 const parseMultimediaForm = require("../helpers/parse-multimedia-form");
 
-const FILE_TYPE_MAP = {
-  "image/png": "png",
-  "image/jpeg": "jpeg",
-  "image/jpg": "jpg",
-};
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const isValid = FILE_TYPE_MAP[file.mimetype];
-    let uploadError = new Error("invalid image type");
-
-    if (isValid) {
-      uploadError = null;
-    }
-
-    cb(uploadError, "public/uploads");
-  },
-  filename: function (req, file, cb) {
-    const fileName = file.originalname.replace(" ", "-");
-    const uniqueSuffix = Date.now();
-    const extention = FILE_TYPE_MAP[file.mimetype];
-    cb(null, `${fileName}-${uniqueSuffix}.${extention}`);
-  },
-});
-
-const uploadOptions = multer({ storage: storage });
 // ==================================================================
 
 router.post("/file", async (req, res) => {
-  url = await parseMultimediaForm(req)
+  result = await parseMultimediaForm(req, "testing")
     .then((res) => {
       console.log(res);
       return res;
     })
     .catch((e) => {
+      console.log(e);
       return e;
     });
-  res.send(url);
+  res.send(result);
 });
 
 router.get(`/`, async (req, res) => {
